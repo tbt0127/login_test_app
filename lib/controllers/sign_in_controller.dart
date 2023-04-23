@@ -1,21 +1,21 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:login_test_app/models/app_user_info_model.dart';
+import 'package:login_test_app/models/auth_model.dart';
 
 final signInControllerProvider = Provider((ref) {
-  final appUserInfoModel = ref.read(appUserInfoModelProvider.notifier);
-  return SignInController(appUserInfoModel);
+  final authNotifier = ref.read(authNotifierProvider.notifier);
+  return SignInController(authNotifier);
 });
 
 class SignInController {
-  final AppUserInfoModelNotifier appUserInfoModel;
+  final AuthNotifier authNotifier;
 
-  SignInController(this.appUserInfoModel);
+  SignInController(this.authNotifier);
 
   signIn(String email, String password) {
-    appUserInfoModel.signIn(email: email, password: password);
+    authNotifier.signIn(email: email, password: password);
   }
 
   signOut() {
-    appUserInfoModel.signOut();
+    authNotifier.signOut();
   }
 }

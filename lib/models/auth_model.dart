@@ -6,35 +6,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:login_test_app/entities/app_userinfo.dart';
 import 'package:login_test_app/repositories/auth_repository_impl.dart';
 
-final appUserInfoModelProvider =
-    AsyncNotifierProvider<AppUserInfoModelNotifier, AppUserInfo?>(() {
-  return AppUserInfoModelNotifier();
+final authNotifierProvider = AsyncNotifierProvider<AuthNotifier, void>(() {
+  return AuthNotifier();
 });
 
-class AppUserInfoModelNotifier extends AsyncNotifier<AppUserInfo?> {
+final appUserProvider = StreamProvider<AppUserInfo?>(
+  (ref) => ref.watch(firebaseAuthProvider).authStateChanges().map((user) =>
+      AppUserInfo(
+          id: user?.uid ?? "empty id", name: user?.email ?? "empty mail")),
+);
+
+class AuthNotifier extends AsyncNotifier<void> {
   @override
-  FutureOr<AppUserInfo?> build() {
-    ref.listen(authUserProvider, (previous, next) {
-      next.when(data: (data) {
-        debugPrint("data: ${data?.uid ?? "null"}");
-        if (data != null) {
-          debugPrint("data: ${data.uid}");
-          state = AsyncValue.data(
-              AppUserInfo(id: data.uid, name: data.email ?? "empty"));
-        } else {
-          debugPrint("null");
-          state = const AsyncValue.data(null);
-        }
-      }, error: (error, stackTrace) {
-        debugPrint("error");
-        state = AsyncValue.error(error, stackTrace);
-      }, loading: () {
-        debugPrint("loading");
-        state = const AsyncLoading();
-      });
-    });
-    return null;
-  }
+  FutureOr<void> build() {}
 
   /// サインインする
   Future<void> signIn({
@@ -55,7 +39,6 @@ class AppUserInfoModelNotifier extends AsyncNotifier<AppUserInfo?> {
       } on FirebaseAuthException catch (e) {
         debugPrint(e.code);
       }
-      return null;
     });
   }
 
